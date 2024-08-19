@@ -8,12 +8,13 @@ from typing import Any, Callable, ClassVar, Dict, Optional
 
 
 class TimerError(Exception):
-    """A custom exception used to report errors in use of Timer class"""
+    """A custom exception used to report errors in use of Timer class."""
 
 
 @dataclass
 class Timer(ContextDecorator):
-    """Times the code using a class, context manager, or decorator.
+    """
+    Times the code using a class, context manager, or decorator.
 
     Args:
         name: optional name of the timer, required if used as context manager or decorator
@@ -32,19 +33,19 @@ class Timer(ContextDecorator):
     _start_time: Optional[float] = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
-        """Initialization: add timer to dict of timers"""
+        """Initialization: add timer to dict of timers."""
         if self.name:
             self.timers.setdefault(self.name, deque(maxlen=self.filter_strength))
 
     def start(self) -> None:
-        """Start a new timer"""
+        """Start a new timer."""
         if self._start_time is not None:
             raise TimerError("Timer is running. Use .stop() to stop it")
 
         self._start_time = time.perf_counter()
 
     def stop(self) -> float:
-        """Stop the timer, and report the elapsed time"""
+        """Stop the timer, and report the elapsed time."""
         if self._start_time is None:
             raise TimerError("Timer is not running. Use .start() to start it")
 
@@ -68,12 +69,14 @@ class Timer(ContextDecorator):
         return avg_time
 
     def print(self, timers: Optional[list] = None) -> str:
-        """Prints the time for all given timers. If None is passed, all timers will be reported.
+        """
+        Prints the time for all given timers. If None is passed, all timers will be reported.
 
         Args:
             timers: name of the timers that should be reported
+        Returns:
+            str: log string
         """
-
         # If no timers are passed, report all timers
         if timers is None:
             timers = self.timers.keys()
@@ -95,12 +98,12 @@ class Timer(ContextDecorator):
         return log
 
     def reset(self, timers: Optional[list] = None) -> None:
-        """Resets the time for all given timers. If None is passed, all timers will be reset.
+        """
+        Resets the time for all given timers. If None is passed, all timers will be reset.
 
         Args:
             timers: name of the timers that should be reset
         """
-
         # If no timers are passed, reset all timers
         if timers is None:
             timers = self.timers.keys()
@@ -110,10 +113,10 @@ class Timer(ContextDecorator):
             self.timers[timer_name].clear()
 
     def __enter__(self) -> "Timer":
-        """Start a new timer as a context manager"""
+        """Start a new timer as a context manager."""
         self.start()
         return self
 
     def __exit__(self, *exc_info: Any) -> None:
-        """Stop the context manager timer"""
+        """Stop the context manager timer."""
         self.stop()

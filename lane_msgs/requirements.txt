@@ -1,0 +1,3 @@
+setuptools==73.0.1
+lark-parser
+catkin_pkg

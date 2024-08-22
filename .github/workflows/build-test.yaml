@@ -22,14 +22,21 @@ jobs:
         required-ros-distributions: jazzy
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y python3-colcon-common-extensions
+      run: |
+        sudo apt-get update && sudo apt-get install -y python3-colcon-common-extensions
+        sudo apt install python3-venv
+        python3 -m venv .venv
+        . .venv/bin/activate
+        find . -name requirements.txt -exec pip install -r {} \;
 
     - name: Build packages
       run: |
+        . .venv/bin/activate
         colcon build --event-handlers console_cohesion+
 
     - name: Run tests
       run: |
+        . .venv/bin/activate
         echo "Skipping tests for now"
         # colcon test --event-handlers console_cohesion+
         # colcon test-result --verbose

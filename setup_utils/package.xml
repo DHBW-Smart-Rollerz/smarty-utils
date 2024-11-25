@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>timing</name>
+  <name>setup_utils</name>
   <version>0.0.0</version>
-  <description>The timing package</description>
+  <description>The setup_utils package</description>
   <maintainer email="info@dhbw-smartrollerz.org">DHBW Smart Rollerz</maintainer>
   <license>TODO: License declaration</license>
 

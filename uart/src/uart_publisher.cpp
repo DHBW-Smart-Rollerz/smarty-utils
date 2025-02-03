@@ -43,17 +43,21 @@ public:
     _serial_port.set_option(boost::asio::serial_port::character_size(boost::asio::serial_port::character_size(8)));
     _serial_port.set_option(boost::asio::serial_port::parity(boost::asio::serial_port::parity::none));
     _serial_port.set_option(boost::asio::serial_port::stop_bits(boost::asio::serial_port::stop_bits::one));
-    
+
     boost::asio::async_read_until(_serial_port, boost::asio::dynamic_buffer(_read_buffer), 0x7E, [this](const boost::system::error_code& error_code, const std::size_t bytes_read) {
-      this->_read_uart(error_code, bytes_read);
+      RCLCPP_INFO(base::get_logger(), "async_read_until uart");
+      _read_uart(error_code, bytes_read);
     });
+
+    _io_context.run();
   }
 
 private:
 
   auto _read_uart(const boost::system::error_code& error_code, const std::size_t bytes_read) -> void {
     if (error_code) {
-      RCLCPP_ERROR(this->get_logger(), "Error reading from UART: %s", error_code.message().c_str());
+      RCLCPP_ERROR(base::get_logger(), "Error reading from UART: %s", error_code.message().c_str());
+      return;
     }
 
     auto decoded = std::vector<std::uint8_t>{};
@@ -74,18 +78,24 @@ private:
       }
     }
 
+    for (auto byte : decoded) {
+      RCLCPP_INFO(base::get_logger(), "Received test value: 0x%2x", byte);  
+    }
+
+    RCLCPP_INFO(base::get_logger(), "========================================================");
+
     auto package = reinterpret_cast<struct package*>(decoded.data());
 
     auto message = std_msgs::msg::String{};
 
-    RCLCPP_INFO(this->get_logger(), "Received test value: %u", package->payload.test.value);
+    RCLCPP_INFO(base::get_logger(), "Received test value: %u", package->payload.test.value);
 
     message.data = std::to_string(package->payload.test.value);
 
     _publisher->publish(message);
 
     boost::asio::async_read_until(_serial_port, boost::asio::dynamic_buffer(_read_buffer), 0x7E, [this](const boost::system::error_code& error_code, const std::size_t bytes_read) {
-      this->_read_uart(error_code, bytes_read);
+      _read_uart(error_code, bytes_read);
     });
   }
 
